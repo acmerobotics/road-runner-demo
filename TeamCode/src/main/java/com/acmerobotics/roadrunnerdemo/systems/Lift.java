@@ -16,15 +16,15 @@ public class Lift {
 
     public static double G = 0;
 
-    public static double MAX_V = 0;
-    public static double MAX_A = 0;
-    public static double MAX_J = 0;
-
     public static PIDCoefficients coefficients = new PIDCoefficients(
             0,
             0,
             0
     );
+
+    public static double MAX_V = 0;
+    public static double MAX_A = 0;
+    public static double MAX_J = 0;
 
     public static final double WINCH_RADIUS = 1;
     public static final double ENCODER_TICKS_PER_REVOLUTION = 1;
@@ -38,7 +38,6 @@ public class Lift {
 
     private DcMotor motor;
 
-
     public Lift (HardwareMap map) {
         motor = map.dcMotor.get("lift");
         controller = new PIDFController(coefficients, K_V, K_A, K_STATIC, (x) -> G);
@@ -46,20 +45,33 @@ public class Lift {
         goToPosition(0);
     }
 
-    public void update () {
-        if (driverControlled) {
-            motor.setPower(driverCommandedPower);
-        } else {
-            MotionState target = profile.get(getProfileTime());
-            controller.setTargetPosition(target.getX());
-            motor.setPower(controller.update(getPosition(), target.getV(), target.getA()));
-        }
+    private double internalGetPosition () {
+        double rotations = motor.getCurrentPosition() / ENCODER_TICKS_PER_REVOLUTION;
+        return rotations * 2 * Math.PI * WINCH_RADIUS;
+    }
+
+    public double getPosition () {
+        return internalGetPosition() + offset;
+    }
+
+    private void setPosition (double position) {
+        offset = position - internalGetPosition();
+    }
+
+    private double getProfileTime () {
+        return (System.currentTimeMillis() - profileStartTime) / 1000.0;
+    }
+
+    public boolean isFollowingProfile () {
+        return profile != null && getProfileTime() < profile.duration();
     }
 
     public void goToPosition (double targetPosition) {
-        MotionState start = new MotionState(getPosition(), 0,0,0);
+        MotionState start;
         if (profile != null) {
             start = profile.get(getProfileTime());
+        } else {
+            start = new MotionState(getPosition(), 0,0,0);
         }
         profile = MotionProfileGenerator.generateSimpleMotionProfile(
                 start,
@@ -72,30 +84,19 @@ public class Lift {
         profileStartTime = System.currentTimeMillis();
     }
 
-    public double getPosition () {
-        return internalGetPosition() + offset;
-    }
-
     public void setPower (double power) {
         if (!driverControlled) controller.reset();
         driverControlled = true;
         driverCommandedPower = power;
     }
 
-    public boolean isFollowingProfile () {
-        return profile != null && getProfileTime() < profile.duration();
-    }
-
-    private void setPosition (double position) {
-        offset = position - internalGetPosition();
-    }
-
-    private double internalGetPosition () {
-        double rotations = motor.getCurrentPosition() / ENCODER_TICKS_PER_REVOLUTION;
-        return rotations * 2 * Math.PI * WINCH_RADIUS;
-    }
-
-    private double getProfileTime () {
-        return (System.currentTimeMillis() - profileStartTime) / 1000.0;
+    public void update () {
+        if (driverControlled) {
+            motor.setPower(driverCommandedPower);
+        } else {
+            MotionState target = profile.get(getProfileTime());
+            controller.setTargetPosition(target.getX());
+            motor.setPower(controller.update(getPosition(), target.getV(), target.getA()));
+        }
     }
 }

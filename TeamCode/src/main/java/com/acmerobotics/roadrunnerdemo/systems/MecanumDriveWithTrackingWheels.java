@@ -10,7 +10,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.List;
 
-public class MecanumDriveWithTrackingWheels extends MecanumDrive{
+public class MecanumDriveWithTrackingWheels extends DemoMecanumDrive {
 
     private static final double TRACKING_WHEEL_RADIUS = 1;
     private static final double TRACKING_ENCODER_TICKS_PER_REVOLUTION = 500;

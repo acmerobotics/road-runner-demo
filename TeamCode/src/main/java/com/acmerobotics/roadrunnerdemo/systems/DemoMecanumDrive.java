@@ -1,6 +1,7 @@
 package com.acmerobotics.roadrunnerdemo.systems;
 
 import com.acmerobotics.roadrunner.control.PIDCoefficients;
+import com.acmerobotics.roadrunner.drive.MecanumDrive;
 import com.acmerobotics.roadrunner.trajectory.constraints.DriveConstraints;
 import com.qualcomm.hardware.HardwareDeviceManager;
 import com.qualcomm.hardware.bosch.BNO055IMU;
@@ -8,6 +9,7 @@ import com.qualcomm.hardware.lynx.LynxEmbeddedIMU;
 import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.I2cDeviceSynch;
 
@@ -19,7 +21,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.List;
 
-public class MecanumDrive extends com.acmerobotics.roadrunner.drive.MecanumDrive {
+public class DemoMecanumDrive extends MecanumDrive {
 
     public static PIDCoefficients TRANSLATIONAL_COEFFICIENTS = new PIDCoefficients(
             1,
@@ -51,7 +53,7 @@ public class MecanumDrive extends com.acmerobotics.roadrunner.drive.MecanumDrive
     private LynxEmbeddedIMU imu;
     private DcMotorEx m0, m1, m2, m3;
 
-    public MecanumDrive (HardwareMap map) {
+    public DemoMecanumDrive(HardwareMap map) {
         super(TRACK_WIDTH, WHEEL_BASE);
 
 
@@ -88,6 +90,9 @@ public class MecanumDrive extends com.acmerobotics.roadrunner.drive.MecanumDrive
         m1 = map.get(DcMotorEx.class, "motor1");
         m2 = map.get(DcMotorEx.class, "motor2");
         m3 = map.get(DcMotorEx.class, "motor3");
+
+        m2.setDirection(DcMotorSimple.Direction.REVERSE);
+        m3.setDirection(DcMotorSimple.Direction.REVERSE);
 
         List<DcMotorEx> motors = Arrays.asList(m0, m1, m2, m3);
 
