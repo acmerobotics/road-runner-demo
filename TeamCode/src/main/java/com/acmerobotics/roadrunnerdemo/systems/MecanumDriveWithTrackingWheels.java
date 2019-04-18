@@ -20,7 +20,7 @@ public class MecanumDriveWithTrackingWheels extends DemoMecanumDrive {
             new Vector2d(0, 4)
     );
 
-    private static final List<Double> TRACKING_WHEEL_ORIENTAITONS = Arrays.asList(
+    private static final List<Double> TRACKING_WHEEL_ORIENTATIONS = Arrays.asList(
             0.0,
             Math.PI / 2
     );
@@ -33,7 +33,7 @@ public class MecanumDriveWithTrackingWheels extends DemoMecanumDrive {
         encoder0 = map.dcMotor.get("encoder0");
         encoder1 = map.dcMotor.get("encoder1");
 
-        setLocalizer(new TwoTrackingWheelLocalizer(TRACKING_WHEEL_POSITIONS, TRACKING_WHEEL_ORIENTAITONS) {
+        setLocalizer(new TwoTrackingWheelLocalizer(TRACKING_WHEEL_POSITIONS, TRACKING_WHEEL_ORIENTATIONS) {
             @NotNull
             @Override
             public List<Double> getWheelPositions() {

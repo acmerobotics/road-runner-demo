@@ -39,10 +39,10 @@ public class DemoMecanumDrive extends MecanumDrive {
     public static double K_STATIC = 0;
 
     public static DriveConstraints CONSTRAINTS = new DriveConstraints(
-            1,
-            .1,
-            1,
-            1
+            10,
+            10,
+            10,
+            10
     );
 
     public static final double TRACK_WIDTH = 16;
@@ -56,35 +56,10 @@ public class DemoMecanumDrive extends MecanumDrive {
     public DemoMecanumDrive(HardwareMap map) {
         super(TRACK_WIDTH, WHEEL_BASE);
 
-
         imu = map.get(LynxEmbeddedIMU.class, "imu");
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
         parameters.angleUnit = BNO055IMU.AngleUnit.RADIANS;
         imu.initialize(parameters);
-
-        try {
-            // axis remap
-            byte AXIS_MAP_CONFIG_BYTE = 0b00011000; //swaps y-z, 0b00100001 is y-x, 0x6 is x-z
-            byte AXIS_MAP_SIGN_BYTE = 0b001; //x, y, z
-
-            //Need to be in CONFIG mode to write to registers
-            imu.write8(BNO055IMU.Register.OPR_MODE, BNO055IMU.SensorMode.CONFIG.bVal & 0x0F);
-
-            Thread.sleep(100); //Changing modes requires a delay before doing anything else
-
-            //Write to the AXIS_MAP_CONFIG register
-            imu.write8(BNO055IMU.Register.AXIS_MAP_CONFIG, AXIS_MAP_CONFIG_BYTE & 0x0F);
-
-            //Write to the AXIS_MAP_SIGN register
-            imu.write8(BNO055IMU.Register.AXIS_MAP_SIGN, AXIS_MAP_SIGN_BYTE & 0x0F);
-
-            //Need to change back into the IMU mode to use the gyro
-            imu.write8(BNO055IMU.Register.OPR_MODE, BNO055IMU.SensorMode.IMU.bVal & 0x0F);
-
-            Thread.sleep(100); //Changing modes again requires a delay
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-        }
 
         m0 = map.get(DcMotorEx.class, "motor0");
         m1 = map.get(DcMotorEx.class, "motor1");
@@ -95,7 +70,6 @@ public class DemoMecanumDrive extends MecanumDrive {
         m3.setDirection(DcMotorSimple.Direction.REVERSE);
 
         List<DcMotorEx> motors = Arrays.asList(m0, m1, m2, m3);
-
         for (DcMotorEx motor: motors) {
             motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
             motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -132,7 +106,4 @@ public class DemoMecanumDrive extends MecanumDrive {
         m3.setPower(v3);
     }
 
-    public double getVelocity () {
-        return m0.getVelocity(AngleUnit.RADIANS) * WHEEL_RADIUS;
-    }
 }

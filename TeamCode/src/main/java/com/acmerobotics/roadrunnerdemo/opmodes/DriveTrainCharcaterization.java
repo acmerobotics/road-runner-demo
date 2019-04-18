@@ -1,5 +1,6 @@
 package com.acmerobotics.roadrunnerdemo.opmodes;
 
+import android.os.Environment;
 import android.util.Log;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -14,7 +15,9 @@ import java.io.FileWriter;
 @Autonomous(name="drivetrainCharacterization")
 public class DriveTrainCharcaterization extends LinearOpMode {
 
-    public static double a = .1;
+    public static double a = .01;
+
+    public static final String TAG = "dtCharacterization";
 
     @Override
     public void runOpMode () {
@@ -22,18 +25,17 @@ public class DriveTrainCharcaterization extends LinearOpMode {
 
         FileWriter writer = null;
         try {
-            writer = new FileWriter("/sdcard/ACME/drivetrain" + System.currentTimeMillis() / 10000 + ".csv");
-            writer.write("command, position");
+            writer = new FileWriter(Environment.getExternalStorageDirectory().getPath() + "/TUNING/drivetrain" + System.currentTimeMillis() / 10000 + ".csv");
+            writer.write("command, velocity");
         } catch (Exception e) {
-            Log.e("ahh", e.getLocalizedMessage());
+            Log.e(TAG, e.getLocalizedMessage());
+            return;
         }
 
         waitForStart();
 
-
         double lastCommand = 0;
         double lastTime = System.currentTimeMillis();
-        double lastVelocity = 0;
         double lastPosition = 0;
         drive.setPoseEstimate(new Pose2d());
 
@@ -45,15 +47,14 @@ public class DriveTrainCharcaterization extends LinearOpMode {
             double position = drive.getPoseEstimate().getX();
             double velocity = (position - lastPosition) / dt;
             lastPosition = position;
-            double averageA = (velocity - lastVelocity) / dt;
-            lastVelocity = velocity;
 
             try {
-                writer.write(lastCommand + ", " + drive.getVelocity() + ", " + averageA + '\n');
+                writer.write(lastCommand + ", " + velocity + '\n');
             } catch (Exception e) {
-                Log.e("ahh", e.getLocalizedMessage());
-
+                Log.e(TAG, e.getLocalizedMessage());
+                return;
             }
+
             drive.setVelocity(new Pose2d(lastCommand, 0, 0));
         }
 
@@ -61,7 +62,7 @@ public class DriveTrainCharcaterization extends LinearOpMode {
             writer.flush();
             writer.close();
         } catch (Exception e) {
-
+            Log.e(TAG, e.getLocalizedMessage());
         }
 
 

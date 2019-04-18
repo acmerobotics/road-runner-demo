@@ -24,11 +24,6 @@ public class TeleOp extends LinearOpMode {
                 lift.goToPosition(0);
             }
 
-            double liftPower = gamepad1.right_trigger - gamepad1.left_trigger;
-            if (Math.abs(liftPower) > 0) {
-                lift.setPower(liftPower);
-            }
-
             lift.update();
 
             drive.setVelocity(new Pose2d(
