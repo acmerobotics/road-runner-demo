@@ -1,0 +1,45 @@
+Motivation
+	fast, accurate movemnet
+	smooth and minimze stress
+
+Terminology
+	glossary in handout
+	motion planning = working out the best way to get somewhere ahead of time - before motion starts (profiles and paths, collectively a trajectory)
+	motion planning gives us a desired state at every point in time
+	motion control = executing a motion, achieving a desired state - a 'control loop' - feedforward components based on known stuff, feedback based on error=
+
+one dimensional motion planning
+	we know our current state, we know our target state, we want to figure out how to get from out current state to our target staet - how do we get there, what are the intermediate states
+	when planning motion we want to observe some physical constraints, without motion planning we will go faster than we are actualy capable of or accelerate harder 
+		for example if we were using a pid loop to control our lift position then we woulde end up applying way too much command in the begining - some teams try to resolve this with multiple controllers
+	a motion profile will describe our state, our position, velocity, and acceleration, as a function of time
+	to construct we give it a start and a end point, as well as constrains. 
+	overshoot and other edge cases
+	new we can access our state at any time
+
+one dimensional feed forward
+	we know what our state is going to be at every point in time, we can calculate the neccecary control to achieve that state
+	oversimplified brushed dc motor kinematics - plus k static
+	we've got ourselves a time based auto!!!!
+	we can make it better - add gravity feed forward 
+	
+pid loops
+	sick lets add back in feed back control
+	all right its just like tuning a normal PID loop which I hope you are all familiar with, but here is a really quick review
+	this means that we need reliable odometry - with one dimensional motion this is easy as the motor encoders
+	we can calculate our error based on where we want to be at that particular moment, not where we want to end up, this resolves the problem of needing multple p gains
+	our gains can be pretty low because feed forward should be doing most of the heavy lifting, i is not supper neccecary if you have proper constant state feed forward, d can help but with long or inconsistent loop times you mileage may vary - tldr have well tuned feed forward will minimize feed back
+
+2d motion planning
+	splines - between two points, specify first and second derivitives
+	trajectory - put a path and a profile together, profile describes displacement over time, path describes location over time
+	dynamic profiles - allows dynamic constrains, so that you go more slowly through corners and such, acceleration limited, default
+	normal profiles - jerk limited, does not take into account path geometry
+	heading - non-holonomic -> heading is taken care of, holonomic heading can be any arbitrary thing, this makes it more complex
+	holonomic case, either constant, linear, or some other type of interpolator
+	linear is nice - only one profile, heading varies linearly with displacement
+
+roadrunner interface to drivetrain
+	we have to make our hardware interface with roadrunner - we do it this way.
+
+2d tuning
